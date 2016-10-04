@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "UploadMultipleFileAndData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>UploadMultipleFileAndData</h2>
+<script src="~/Scripts/EhipAPI.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('#Submit').click(function () {
+            var userName = $('#UserName').val();
+            var fullName = $('#FullName').val();
+
+            Ehip.Ajax({
+                data: { userName: userName, fullName: fullName },
+                url: '/api/Values/UploadMultipleFileAndData',
+                done: function (response) {
+                    console.log(response);
+                }
+            });
+        });
+    });
+</script>
+<input type="file" />
+<input type="text" name="UserName" id="UserName" />
+<input type="text" name="FullName" id="FullName" />
+<input type="button" name="Submit" id="Submit" value="Submit" />
