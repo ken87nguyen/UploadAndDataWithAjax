@@ -16,13 +16,14 @@
                 data: { userName: userName, fullName: fullName },
                 url: '/api/Values/UploadMultipleFileAndData',
                 done: function (response) {
+                    alert('successfully!');
                     console.log(response);
                 }
             });
         });
     });
 </script>
-<input type="file" />
+<input type="file" name="files[]" multiple directory webkitdirectory />
 <input type="text" name="UserName" id="UserName" />
 <input type="text" name="FullName" id="FullName" />
 <input type="button" name="Submit" id="Submit" value="Submit" />

@@ -4,20 +4,39 @@ if (!jQuery) { throw new Error("Upload File requires jQuery") }
     "use strict";
     var Ehip = {
         Init: function () {
-            alert('sdf');
             //<input type="file" name="files[]" multiple directory webkitdirectory>
         },
         LoadingID: 'loading',
         Token: '',
         Blob: window.Blob,
         File: window.File,
+        getIframeContentJSON : function (iframe) {
+            //IE may throw an "access is denied" error when attempting to access contentDocument on the iframe in some cases
+            try {
+                // iframe.contentWindow.document - for IE<7
+                var doc = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document,
+                    response;
+
+                var innerHTML = doc.body.innerHTML;
+                //plain text response may be wrapped in <pre> tag
+                if (innerHTML.slice(0, 5).toLowerCase() == "<pre>" && innerHTML.slice(-6).toLowerCase() == "</pre>") {
+                    innerHTML = doc.body.firstChild.firstChild.nodeValue;
+                }
+                response = eval("(" + innerHTML + ")");
+            } catch (err) {
+                response = { success: false };
+            }
+
+            return response;
+        },
         FormData: window.FormData,
         Ajax: function (options) {
             if (Ehip.IsUndifined(options.url)) {
+                alert('Url required for ajax');
                 console.log('Url required for ajax');
             }
             var inputFiles = $('input[type="file"]');
-            if (!Ehip.IsFormData) {
+            if (!Ehip.IsFormData()) {
                 var iframe = document.createElement("iframe");
                 iframe.setAttribute("name", "upload_iframe_mySubmitForm");
                 iframe.setAttribute("id", "upload_iframe_mySubmitForm");
@@ -30,7 +49,7 @@ if (!jQuery) { throw new Error("Upload File requires jQuery") }
 
                 var form = document.createElement("form");
                 form.setAttribute("target", "upload_iframe_mySubmitForm");
-                form.setAttribute("action", url);
+                form.setAttribute("action", options.url);
                 form.setAttribute("method", "post");
                 form.setAttribute("id", "formIE9Submit");
                 form.setAttribute("enctype", "multipart/form-data");
@@ -45,6 +64,31 @@ if (!jQuery) { throw new Error("Upload File requires jQuery") }
                         form.appendChild(value);
                     });
                 }
+
+                document.body.appendChild(form);
+                document.body.appendChild(iframe);
+                iframeIdmyFile = document.getElementById("upload_iframe_mySubmitForm");
+
+                // Add event...
+                var eventHandlermyFile = function () {
+                    if (iframeIdmyFile.detachEvent)
+                        iframeIdmyFile.detachEvent("onload", eventHandlermyFile);
+                    else
+                        iframeIdmyFile.removeEventListener("load", eventHandlermyFile, false);
+
+                    response = Ehip.getIframeContentJSON(iframeIdmyFile);
+                    console.log(response);
+                    //$('#upload_iframe_mySubmitForm').remove();
+                }
+
+                if (iframeIdmyFile.addEventListener) {
+                    iframeIdmyFile.addEventListener("load", eventHandlermyFile, true);
+                }
+                if (iframeIdmyFile.attachEvent) {
+                    iframeIdmyFile.attachEvent("onload", eventHandlermyFile);
+                }
+
+                form.submit();
                 return;
             }
             //$.ajaxStart(function () {
@@ -134,7 +178,7 @@ if (!jQuery) { throw new Error("Upload File requires jQuery") }
             $.ajax(this.options);
         },
         IsUndifined: function (obj) {
-            return obj == undefined;
+            return obj === 'undefined';
         },
         IsObject: function (obj) {
             return typeof (obj) === 'object';
@@ -146,10 +190,10 @@ if (!jQuery) { throw new Error("Upload File requires jQuery") }
             return obj === null;
         },
         IsFormData: function () {
-            return typeof Ehip.FormData != 'undefined';
+            return typeof Ehip.FormData !== 'undefined';
         },
         IsBlob: function () {
-            return typeof Ehip.Blob != 'undefined';
+            return typeof Ehip.Blob !== 'undefined';
         },
         IsFile: function () {
             return typeof Ehip.File != 'undefined';

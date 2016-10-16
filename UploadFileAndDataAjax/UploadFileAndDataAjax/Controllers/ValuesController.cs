@@ -17,7 +17,7 @@ namespace UploadFileAndDataAjax.Controllers
         [ActionName("UploadMultipleFileAndData")]
         public async Task<IEnumerable<string>> UploadMultipleFileAndData()
         {
-            var root = HttpContext.Current.Server.MapPath("/");
+            var root = HttpContext.Current.Server.MapPath("/UploadFile/");
             Directory.CreateDirectory(root);
             var provider = new MultipartFormDataStreamProvider(root);
             var request =HttpContext.Current.Request;
@@ -29,7 +29,7 @@ namespace UploadFileAndDataAjax.Controllers
             {
             }
             //result.
-            return new string[] { "value1", "value2" };
+            return null;
         }
 
         // GET api/values/5
